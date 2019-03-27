@@ -14,9 +14,17 @@ static void cursor_position_callback(GLFWwindow* window, double xpos, double ypo
 	mYpos = ypos;
 }
 
-void move(float& x, float& z, float angle, float speed) {
-	z += std::cos(angle) * speed;
-	x += std::sin(angle) * speed;
+void move(float& x, float& z, float angle, float speed, int* map) {
+	float movementZ = std::cos(angle) * speed;
+	float movementX = std::sin(angle) * speed;
+
+	if (!map[(int)(x + movementX) + (int)(z) * 10]) {
+		x += movementX;
+	}
+
+	if (!map[(int)(x) + (int)(z + movementZ) * 10]) {
+		z += movementZ;
+	}
 }
 
 int main(void) {
@@ -51,7 +59,7 @@ int main(void) {
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, texW, texH, 0, GL_RGBA, GL_FLOAT, NULL);
 	glBindImageTexture(0, textureID, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
 
-	std::ifstream stream("src/ComputeShader2.shader");
+	std::ifstream stream("src/ComputeShader.shader");
 	std::string computeShaderSourceString((std::istreambuf_iterator<char>(stream)), std::istreambuf_iterator<char>());
 	const char* computeShaderSource = computeShaderSourceString.c_str();
 
@@ -70,21 +78,25 @@ int main(void) {
 
 	glDeleteShader(rayShader);
 
-	GLint spherePosUniformLocation = glGetUniformLocation(rayProgram, "spherePos");
-	GLint lightPosUniformLocation = glGetUniformLocation(rayProgram, "lightPos");
+	//GLint spherePosUniformLocation = glGetUniformLocation(rayProgram, "spherePos");
+	//GLint lightPosUniformLocation = glGetUniformLocation(rayProgram, "lightPos");
 	GLint lookDirUniformLocation = glGetUniformLocation(rayProgram, "lookDir");
 	GLint posUniformLocation = glGetUniformLocation(rayProgram, "pos");
+	GLint lightPosUniformLocation = glGetUniformLocation(rayProgram, "lightPos");
+
+	float lightPos[3] = { 5, 0, 5 };
+	glUniform3fv(lightPosUniformLocation, 1, lightPos);
 
 	int map[100] = {
 		1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
 		1, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+		1, 0, 0, 1, 0, 0, 0, 0, 0, 1,
+		1, 0, 0, 1, 1, 1, 1, 0, 0, 1,
 		1, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-		1, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-		1, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-		1, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-		1, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-		1, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-		1, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+		1, 0, 1, 0, 0, 0, 0, 1, 0, 1,
+		1, 0, 1, 0, 0, 0, 0, 1, 1, 1,
+		1, 0, 1, 1, 0, 0, 0, 1, 0, 1,
+		1, 0, 0, 1, 0, 0, 0, 0, 0, 1,
 		1, 1, 1, 1, 1, 1, 1, 1, 1, 1
 	};
 	GLint mapUniformLocation = glGetUniformLocation(rayProgram, "map");
@@ -178,10 +190,10 @@ int main(void) {
 		}
 
 		if (glfwGetKey(window, GLFW_KEY_ESCAPE)) glfwSetWindowShouldClose(window, true);
-		if (glfwGetKey(window, GLFW_KEY_W)) move(pX, pZ, lookDir, deltaTime * 2);
-		if (glfwGetKey(window, GLFW_KEY_S)) move(pX, pZ, lookDir, deltaTime * -2);
-		if (glfwGetKey(window, GLFW_KEY_A)) move(pX, pZ, lookDir - 90, deltaTime * 2);
-		if (glfwGetKey(window, GLFW_KEY_D)) move(pX, pZ, lookDir + 90, deltaTime * 2);
+		if (glfwGetKey(window, GLFW_KEY_W)) move(pX, pZ, lookDir, deltaTime * 2, map);
+		if (glfwGetKey(window, GLFW_KEY_S)) move(pX, pZ, lookDir, deltaTime * -2, map);
+		if (glfwGetKey(window, GLFW_KEY_A)) move(pX, pZ, lookDir - 90, deltaTime * 2, map);
+		if (glfwGetKey(window, GLFW_KEY_D)) move(pX, pZ, lookDir + 90, deltaTime * 2, map);
 		lookDir += mDeltaX * 0.001;
 
 		glUseProgram(rayProgram);

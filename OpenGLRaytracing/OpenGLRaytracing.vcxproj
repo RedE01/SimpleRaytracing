@@ -14,8 +14,7 @@
     <ClCompile Include="src\Main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="src\ComputeShader1.shader" />
-    <None Include="src\ComputeShader2.shader" />
+    <None Include="src\ComputeShader.shader" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{1EA6ADA3-0A9F-CCF5-33D1-B17A1F29AC01}</ProjectGuid>
