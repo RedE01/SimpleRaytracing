@@ -59,7 +59,7 @@ int main(void) {
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, texW, texH, 0, GL_RGBA, GL_FLOAT, NULL);
 	glBindImageTexture(0, textureID, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
 
-	std::ifstream stream("src/ComputeShader.shader");
+	std::ifstream stream("src/ComputeShader.glsl");
 	std::string computeShaderSourceString((std::istreambuf_iterator<char>(stream)), std::istreambuf_iterator<char>());
 	const char* computeShaderSource = computeShaderSourceString.c_str();
 
@@ -84,7 +84,7 @@ int main(void) {
 	GLint posUniformLocation = glGetUniformLocation(rayProgram, "pos");
 	GLint lightPosUniformLocation = glGetUniformLocation(rayProgram, "lightPos");
 
-	float lightPos[3] = { 5, 0, 5 };
+	float lightPos[3] = { 6, 0, 7 };
 	glUniform3fv(lightPosUniformLocation, 1, lightPos);
 
 	int map[100] = {
@@ -192,9 +192,9 @@ int main(void) {
 		if (glfwGetKey(window, GLFW_KEY_ESCAPE)) glfwSetWindowShouldClose(window, true);
 		if (glfwGetKey(window, GLFW_KEY_W)) move(pX, pZ, lookDir, deltaTime * 2, map);
 		if (glfwGetKey(window, GLFW_KEY_S)) move(pX, pZ, lookDir, deltaTime * -2, map);
-		if (glfwGetKey(window, GLFW_KEY_A)) move(pX, pZ, lookDir - 90, deltaTime * 2, map);
-		if (glfwGetKey(window, GLFW_KEY_D)) move(pX, pZ, lookDir + 90, deltaTime * 2, map);
-		lookDir += mDeltaX * 0.001;
+		if (glfwGetKey(window, GLFW_KEY_A)) move(pX, pZ, lookDir + 90, deltaTime * 2, map);
+		if (glfwGetKey(window, GLFW_KEY_D)) move(pX, pZ, lookDir - 90, deltaTime * 2, map);
+		lookDir -= mDeltaX * 0.001;
 
 		glUseProgram(rayProgram);
 		/*glUniform3f(spherePosUniformLocation, 0, 0, sPosZ);
