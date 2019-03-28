@@ -83,6 +83,7 @@ void main() {
 			color2 = calculateColor(refInfo);
 
 			color = color * 0.7 + color2 * 0.3f;
+			info.dist += refInfo.dist;
 			counter++;
 		}
 	}

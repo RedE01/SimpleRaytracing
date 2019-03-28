@@ -78,22 +78,20 @@ int main(void) {
 
 	glDeleteShader(rayShader);
 
-	//GLint spherePosUniformLocation = glGetUniformLocation(rayProgram, "spherePos");
-	//GLint lightPosUniformLocation = glGetUniformLocation(rayProgram, "lightPos");
 	GLint lookDirUniformLocation = glGetUniformLocation(rayProgram, "lookDir");
 	GLint posUniformLocation = glGetUniformLocation(rayProgram, "pos");
 	GLint lightPosUniformLocation = glGetUniformLocation(rayProgram, "lightPos");
 	glUniform1i(glGetUniformLocation(rayProgram, "reflections"), 10);
 	glUniform1f(glGetUniformLocation(rayProgram, "rayDelta"), 0.01f);
 
-	float lightPos[3] = { 5.5f, 0, 6.5f };
+	float lightPos[3] = { 5.5f, 0, 5.5f };
 	glUniform3fv(lightPosUniformLocation, 1, lightPos);
 
 	int map[100] = {
 		1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
 		1, 0, 0, 0, 0, 1, 0, 0, 0, 1,
 		1, 0, 0, 1, 0, 0, 0, 0, 0, 1,
-		1, 0, 0, 0, 0, 2, 1, 0, 0, 1,
+		1, 0, 0, 0, 1, 2, 1, 0, 0, 1,
 		1, 0, 0, 0, 0, 0, 0, 0, 0, 1,
 		1, 0, 0, 1, 0, 0, 0, 1, 0, 1,
 		1, 0, 0, 0, 0, 0, 0, 0, 0, 1,
@@ -105,7 +103,6 @@ int main(void) {
 	GLint mapUniformLocation = glGetUniformLocation(rayProgram, "map");
 	glUniform1iv(mapUniformLocation, 100, map);
 	
-
 	const char* vertShaderSource = {
 		"#version 330 core\n"
 		"layout(location = 0) in vec3 aPos;\n"
@@ -176,7 +173,6 @@ int main(void) {
 
 	double previousFrame = 0, timer = 0;
 	int frames = 0;
-	//float sPosZ = -20.0f, lPosZ = 20.0f;
 	float lookDir = 0, pX = 5, pZ = 5;
 
 	while (!glfwWindowShouldClose(window)) {
@@ -200,8 +196,6 @@ int main(void) {
 		lookDir -= mDeltaX * 0.001;
 
 		glUseProgram(rayProgram);
-		/*glUniform3f(spherePosUniformLocation, 0, 0, sPosZ);
-		glUniform3f(lightPosUniformLocation, 0.0f, 10.0f, lPosZ);*/
 		glUniform1f(lookDirUniformLocation, lookDir);
 		glUniform3f(posUniformLocation, pX, 0, pZ);
 		glDispatchCompute((GLuint)texW, 1, 1);
