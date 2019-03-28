@@ -83,22 +83,25 @@ int main(void) {
 	GLint lookDirUniformLocation = glGetUniformLocation(rayProgram, "lookDir");
 	GLint posUniformLocation = glGetUniformLocation(rayProgram, "pos");
 	GLint lightPosUniformLocation = glGetUniformLocation(rayProgram, "lightPos");
+	glUniform1i(glGetUniformLocation(rayProgram, "reflections"), 10);
+	glUniform1f(glGetUniformLocation(rayProgram, "rayDelta"), 0.01f);
 
-	float lightPos[3] = { 6, 0, 7 };
+	float lightPos[3] = { 5.5f, 0, 6.5f };
 	glUniform3fv(lightPosUniformLocation, 1, lightPos);
 
 	int map[100] = {
 		1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
 		1, 0, 0, 0, 0, 1, 0, 0, 0, 1,
 		1, 0, 0, 1, 0, 0, 0, 0, 0, 1,
-		1, 0, 0, 1, 0, 0, 1, 0, 0, 1,
-		1, 0, 0, 0, 0, 1, 0, 0, 0, 1,
-		1, 0, 0, 1, 0, 0, 0, 1, 0, 1,
-		1, 0, 0, 0, 0, 0, 0, 0, 1, 1,
-		1, 1, 0, 1, 0, 0, 0, 1, 0, 1,
+		1, 0, 0, 0, 0, 2, 1, 0, 0, 1,
 		1, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-		1, 1, 0, 1, 0, 1, 0, 1, 1, 1
-	};
+		1, 0, 0, 1, 0, 0, 0, 1, 0, 1,
+		1, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+		1, 1, 0, 2, 0, 0, 0, 1, 0, 1,
+		1, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+		1, 1, 1, 1, 1, 2, 1, 1, 1, 1
+	}; // 1 is wall, 2 is mirror
+
 	GLint mapUniformLocation = glGetUniformLocation(rayProgram, "map");
 	glUniform1iv(mapUniformLocation, 100, map);
 	

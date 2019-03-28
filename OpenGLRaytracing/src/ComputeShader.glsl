@@ -7,11 +7,14 @@ uniform int map[100];
 uniform vec3 lightPos[1];
 uniform float lookDir;
 uniform vec3 pos;
+uniform float rayDelta;
+uniform int reflections;
 
 struct hitInfo {
 	float dist;
 	vec3 hitPoint;
 	bool hit;
+	int wallType;
 };
 
 hitInfo castRay(vec3 origin, vec3 rayDir, float maxDistance, float increment) {
@@ -27,6 +30,7 @@ hitInfo castRay(vec3 origin, vec3 rayDir, float maxDistance, float increment) {
 			hitInf.dist = dist;
 			hitInf.hitPoint = newPos;
 			hitInf.hit = true;
+			hitInf.wallType = map[index];
 			return hitInf;
 		}
 	}
@@ -38,11 +42,21 @@ float calculateColor(hitInfo info) {
 	if (info.hit) {
 		float lightDistance = distance(info.hitPoint, lightPos[0]);
 		vec3 rayDir2 = normalize(lightPos[0] - info.hitPoint);
-		hitInfo info2 = castRay(info.hitPoint + rayDir2 * 0.02f, rayDir2, lightDistance, 0.01f);
+		hitInfo info2 = castRay(info.hitPoint + rayDir2 * 0.04f, rayDir2, lightDistance, rayDelta);
 		color = 1 / lightDistance;
-		if (info2.hit) color *= 0.5f;
+		if (info2.hit) color *= 0.75f;
 	}
 	return color;
+}
+
+vec3 calculateRefDir(vec3 rayDir, hitInfo lastHitInfo) {
+	vec3 refDir = rayDir;
+
+	vec3 normal = (lastHitInfo.hitPoint - ivec3(lastHitInfo.hitPoint)) - vec3(0.5, 0, 0.5);
+	if(abs(normal.x) > abs(normal.z)) refDir.x *= -1;
+	else refDir.z *= -1;
+
+	return refDir;
 }
 
 void main() {
@@ -54,20 +68,26 @@ void main() {
 	float angle = x * -0.698f + lookDir;
 	vec3 rayDir = vec3(sin(angle), 0, cos(angle));
 
-	hitInfo info = castRay(pos, rayDir, 50, 0.01f);
+	hitInfo info = castRay(pos, rayDir, 15, rayDelta);
 	float color = calculateColor(info); 
 	
-	vec3 refDir = rayDir;
-	vec3 normal = (info.hitPoint - ivec3(info.hitPoint)) - vec3(0.5, 0, 0.5);
-	if(abs(normal.x) > abs(normal.z)) refDir.x *= -1;
-	else refDir.z *= -1;
+	if(info.wallType == 2) {
+		vec3 refDir = rayDir;
+		hitInfo refInfo = info;
+		float color2;
+		int counter = 0;
 
-	hitInfo refInfo = castRay(info.hitPoint, refDir, 50.0f, 0.01f);
-	float color2 = calculateColor(refInfo);
-	color += color2 * 0.1f;
+		while(refInfo.wallType == 2 && counter < reflections) {
+			refDir = calculateRefDir(refDir, refInfo);
+			refInfo = castRay(refInfo.hitPoint, refDir, 15.0f, rayDelta);
+			color2 = calculateColor(refInfo);
+
+			color = color * 0.7 + color2 * 0.3f;
+			counter++;
+		}
+	}
 
 	vec4 pixel = vec4(color, color, color, 1);
-		
 	
 	int hHeight = dims.y / 2;
 	int height = hHeight - int(float(hHeight) - (float(dims.y) / info.dist));
