@@ -1,13 +1,16 @@
 #version 430
 
+#define MAP_WIDTH 10
+
 layout(local_size_x = 1) in;
 layout(rgba32f, binding = 0) uniform image2D imgOutput;
 
-uniform int map[100];
+uniform int map[MAP_WIDTH * MAP_WIDTH];
+uniform int mapWidth;
+uniform float maxRayLength;
 uniform vec3 lightPos[1];
 uniform float lookDir;
 uniform vec3 pos;
-uniform float rayDelta;
 uniform int reflections;
 
 struct hitInfo {
@@ -21,7 +24,7 @@ int getSign(float f) {
 	return int(f > 0) - int(f < 0);
 }
 
-hitInfo castRay(vec3 origin, vec3 rayDir, float maxDistance, float increment) {
+hitInfo castRay(vec3 origin, vec3 rayDir, float maxDistance) {
 	hitInfo hitInf;
 	hitInf.hit = false;
 	float dist = 0;
@@ -32,8 +35,8 @@ hitInfo castRay(vec3 origin, vec3 rayDir, float maxDistance, float increment) {
 		float smallestLen = len.x < len.z ? len.x : len.z;
 		dist += smallestLen;
 		origin = origin + rayDir * smallestLen;
-		int index = int(origin.x) + int(origin.z) * 10;
-		if(index < 0 || index > 99) break;
+		int index = int(origin.x) + int(origin.z) * mapWidth;
+		if(index < 0 || index > 143) break;
 		if(map[index] != 0) {
 			hitInf.dist = dist;
 			hitInf.hitPoint = origin;
@@ -50,7 +53,7 @@ float calculateColor(hitInfo info) {
 	if (info.hit) {
 		float lightDistance = distance(info.hitPoint, lightPos[0]);
 		vec3 rayDir2 = normalize(lightPos[0] - info.hitPoint);
-		hitInfo info2 = castRay(info.hitPoint + rayDir2 * 0.04f, rayDir2, lightDistance, rayDelta);
+		hitInfo info2 = castRay(info.hitPoint + rayDir2 * 0.04f, rayDir2, lightDistance);
 		color = 1 / lightDistance;
 		if (info2.hit) color *= 0.75f;
 	}
@@ -76,7 +79,7 @@ void main() {
 	float angle = x * -0.698f + lookDir;
 	vec3 rayDir = vec3(sin(angle), 0, cos(angle));
 
-	hitInfo info = castRay(pos, rayDir, 15, rayDelta);
+	hitInfo info = castRay(pos, rayDir, maxRayLength);
 	float color = calculateColor(info); 
 	
 	if(info.wallType == 2) {
@@ -87,7 +90,7 @@ void main() {
 
 		while(refInfo.wallType == 2 && counter < reflections) {
 			refDir = calculateRefDir(refDir, refInfo);
-			refInfo = castRay(refInfo.hitPoint, refDir, 15.0f, rayDelta);
+			refInfo = castRay(refInfo.hitPoint, refDir, maxRayLength);
 			color2 = calculateColor(refInfo);
 
 			color = color * 0.7 + color2 * 0.3f;

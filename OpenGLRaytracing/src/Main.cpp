@@ -3,6 +3,8 @@
 #include <GLFW/glfw3.h>
 #include <fstream>
 
+#define MAP_WIDTH 10
+
 double mXpos = -1, mYpos = -1, mDeltaX = 0, mDeltaY = 0;
 
 static void cursor_position_callback(GLFWwindow* window, double xpos, double ypos) {
@@ -18,11 +20,11 @@ void move(float& x, float& z, float angle, float speed, int* map) {
 	float movementZ = std::cos(angle) * speed;
 	float movementX = std::sin(angle) * speed;
 
-	if (!map[(int)(x + movementX) + (int)(z) * 10]) {
+	if (!map[(int)(x + movementX) + (int)(z) * MAP_WIDTH]) {
 		x += movementX;
 	}
 
-	if (!map[(int)(x) + (int)(z + movementZ) * 10]) {
+	if (!map[(int)(x) + (int)(z + movementZ) * MAP_WIDTH]) {
 		z += movementZ;
 	}
 }
@@ -82,15 +84,14 @@ int main(void) {
 	GLint posUniformLocation = glGetUniformLocation(rayProgram, "pos");
 	GLint lightPosUniformLocation = glGetUniformLocation(rayProgram, "lightPos");
 	glUniform1i(glGetUniformLocation(rayProgram, "reflections"), 100);
-	glUniform1f(glGetUniformLocation(rayProgram, "rayDelta"), 0.01f);
 
 	float lightPos[3] = { 5.5f, 0, 5.5f };
 	glUniform3fv(lightPosUniformLocation, 1, lightPos);
 
-	int map[100] = {
+	int map[MAP_WIDTH * MAP_WIDTH] = {
 		1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
 		1, 0, 0, 0, 0, 1, 0, 0, 0, 1,
-		1, 0, 0, 1, 0, 0, 0, 0, 0, 1,
+		1, 0, 0, 0, 0, 0, 0, 0, 0, 1,
 		1, 0, 0, 0, 1, 2, 1, 0, 0, 1,
 		1, 0, 0, 0, 0, 0, 0, 0, 0, 1,
 		1, 0, 0, 1, 0, 0, 0, 1, 0, 1,
@@ -101,7 +102,9 @@ int main(void) {
 	}; // 1 is wall, 2 is mirror
 
 	GLint mapUniformLocation = glGetUniformLocation(rayProgram, "map");
-	glUniform1iv(mapUniformLocation, 100, map);
+	glUniform1iv(mapUniformLocation, MAP_WIDTH * MAP_WIDTH, map);
+	glUniform1i(glGetUniformLocation(rayProgram, "mapWidth"), MAP_WIDTH);
+	glUniform1f(glGetUniformLocation(rayProgram, "maxRayLength"), sqrt(MAP_WIDTH * MAP_WIDTH * 2));
 	
 	const char* vertShaderSource = {
 		"#version 330 core\n"
