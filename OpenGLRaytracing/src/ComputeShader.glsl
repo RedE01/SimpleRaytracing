@@ -17,21 +17,29 @@ struct hitInfo {
 	int wallType;
 };
 
+int getSign(float f) {
+	return int(f > 0) - int(f < 0);
+}
+
 hitInfo castRay(vec3 origin, vec3 rayDir, float maxDistance, float increment) {
 	hitInfo hitInf;
 	hitInf.hit = false;
 	float dist = 0;
+	vec3 target = vec3((getSign(rayDir.x) * 1.00001f + 1) / 2.0f, 0, (getSign(rayDir.z) * 1.00001f + 1) / 2.0f );
 	while (dist < maxDistance) {
-		dist += increment;
-		vec3 newPos = origin + rayDir * dist;
-		int index = int(newPos.x) + int(newPos.z) * 10;
-		if (index < 0 || index > 99) break;
-		if (map[index] != 0) {
+		vec3 delta = origin - ivec3(origin);
+		vec3 len = vec3((target.x - delta.x) / rayDir.x, 0, (target.z - delta.z) / rayDir.z);
+		float smallestLen = len.x < len.z ? len.x : len.z;
+		dist += smallestLen;
+		origin = origin + rayDir * smallestLen;
+		int index = int(origin.x) + int(origin.z) * 10;
+		if(index < 0 || index > 99) break;
+		if(map[index] != 0) {
 			hitInf.dist = dist;
-			hitInf.hitPoint = newPos;
+			hitInf.hitPoint = origin;
 			hitInf.hit = true;
 			hitInf.wallType = map[index];
-			return hitInf;
+			break;
 		}
 	}
 	return hitInf;

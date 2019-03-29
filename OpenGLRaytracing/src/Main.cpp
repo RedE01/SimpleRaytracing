@@ -45,7 +45,7 @@ int main(void) {
 
 	glfwSetCursorPosCallback(window, cursor_position_callback);
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-	glfwSwapInterval(1);
+	glfwSwapInterval(0);
 
 	int texW = 1280, texH = 720;
 	GLuint textureID;
@@ -81,7 +81,7 @@ int main(void) {
 	GLint lookDirUniformLocation = glGetUniformLocation(rayProgram, "lookDir");
 	GLint posUniformLocation = glGetUniformLocation(rayProgram, "pos");
 	GLint lightPosUniformLocation = glGetUniformLocation(rayProgram, "lightPos");
-	glUniform1i(glGetUniformLocation(rayProgram, "reflections"), 10);
+	glUniform1i(glGetUniformLocation(rayProgram, "reflections"), 100);
 	glUniform1f(glGetUniformLocation(rayProgram, "rayDelta"), 0.01f);
 
 	float lightPos[3] = { 5.5f, 0, 5.5f };
