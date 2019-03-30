@@ -47,7 +47,7 @@ int main(void) {
 
 	glfwSetCursorPosCallback(window, cursor_position_callback);
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-	glfwSwapInterval(0);
+	glfwSwapInterval(1);
 
 	int texW = 1280, texH = 720;
 	GLuint textureID;
@@ -194,8 +194,8 @@ int main(void) {
 		if (glfwGetKey(window, GLFW_KEY_ESCAPE)) glfwSetWindowShouldClose(window, true);
 		if (glfwGetKey(window, GLFW_KEY_W)) move(pX, pZ, lookDir, deltaTime * 2, map);
 		if (glfwGetKey(window, GLFW_KEY_S)) move(pX, pZ, lookDir, deltaTime * -2, map);
-		if (glfwGetKey(window, GLFW_KEY_A)) move(pX, pZ, lookDir + 90, deltaTime * 2, map);
-		if (glfwGetKey(window, GLFW_KEY_D)) move(pX, pZ, lookDir - 90, deltaTime * 2, map);
+		if (glfwGetKey(window, GLFW_KEY_A)) move(pX, pZ, lookDir + 1.571, deltaTime * 2, map);
+		if (glfwGetKey(window, GLFW_KEY_D)) move(pX, pZ, lookDir - 1.571, deltaTime * 2, map);
 		lookDir -= mDeltaX * 0.001;
 
 		glUseProgram(rayProgram);
