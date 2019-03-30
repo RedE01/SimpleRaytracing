@@ -53,9 +53,11 @@ float calculateColor(hitInfo info) {
 	if (info.hit) {
 		float lightDistance = distance(info.hitPoint, lightPos[0]);
 		vec3 rayDir2 = normalize(lightPos[0] - info.hitPoint);
-		hitInfo info2 = castRay(info.hitPoint + rayDir2 * 0.04f, rayDir2, lightDistance);
+		vec3 rayOrigin2 = info.hitPoint + rayDir2 * 0.000025f;
+		hitInfo info2 = castRay(rayOrigin2, rayDir2, lightDistance);
 		color = 1 / lightDistance;
-		if (info2.hit) color *= 0.75f;
+		
+		if (info2.hit || map[int(rayOrigin2.x) + int(rayOrigin2.z) * MAP_WIDTH] != 0) color *= 0.5f;
 	}
 	return color;
 }

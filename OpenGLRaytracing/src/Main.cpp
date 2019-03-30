@@ -85,7 +85,7 @@ int main(void) {
 	GLint lightPosUniformLocation = glGetUniformLocation(rayProgram, "lightPos");
 	glUniform1i(glGetUniformLocation(rayProgram, "reflections"), 100);
 
-	float lightPos[3] = { 5.5f, 0, 5.5f };
+	float lightPos[3] = { 5.75f, 0, 5.75f };
 	glUniform3fv(lightPosUniformLocation, 1, lightPos);
 
 	int map[MAP_WIDTH * MAP_WIDTH] = {
