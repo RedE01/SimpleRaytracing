@@ -2,6 +2,7 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <fstream>
+#include <cmath>
 
 #define MAP_WIDTH 10
 
@@ -191,7 +192,7 @@ int main(void) {
 			timer -= 1;
 		}
 
-		if (glfwGetKey(window, GLFW_KEY_ESCAPE)) glfwSetWindowShouldClose(window, true);
+		if (glfwGetKey(window, GLFW_KEY_ESCAPE)) glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 		if (glfwGetKey(window, GLFW_KEY_W)) move(pX, pZ, lookDir, deltaTime * 2, map);
 		if (glfwGetKey(window, GLFW_KEY_S)) move(pX, pZ, lookDir, deltaTime * -2, map);
 		if (glfwGetKey(window, GLFW_KEY_A)) move(pX, pZ, lookDir + 1.571, deltaTime * 2, map);
