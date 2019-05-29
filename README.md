@@ -10,4 +10,4 @@ Made in C++ using OpenGL.
 ![Raytracer Screenshot](https://user-images.githubusercontent.com/39171004/58558202-7d0bcb00-8220-11e9-9e37-59e42a5063b5.PNG)
 
 ## Compiling with gcc
-Use `g++ -o Raytracing src/Main.cpp -lglfw -lGL -lGLEW` in OpenGLRaytracing folder.
+Use `g++ -o Raytracing src/Main.cpp -lglfw -lGL -lGLEW -I./vendor/stb/` in OpenGLRaytracing folder.
