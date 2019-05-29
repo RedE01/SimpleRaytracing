@@ -1,5 +1,5 @@
 workspace "OpenGLRaytracing"
-	architecture "x64"
+	architecture "x86_64"
 	configurations { "Debug", "Release" }
 
 project "OpenGLRaytracing"
@@ -9,21 +9,23 @@ project "OpenGLRaytracing"
 	targetdir "bin/%{cfg.buildcfg}"
 	objdir "bin-int/%{cfg.buildcfg}"
 	systemversion "latest"
+	defines "GLEW_STATIC"
 
 	files {
-		"src/**.h",
-		"src/**.cpp",
-		"src/**.c"
+		"OpenGLRaytracing/src/**.h",
+		"OpenGLRaytracing/src/**.cpp",
+		"OpenGLRaytracing/src/**.c"
 	}
 
 	includedirs {
 		"OpenGLRaytracing/vendor/GLEW/include",
-		"%{prj.name}/vendor/GLFW/include"
+		"OpenGLRaytracing/vendor/GLFW/include",
+		"OpenGLRaytracing/vendor/stb"
 	}
 
 	libdirs {
 		"OpenGLRaytracing/vendor/GLEW/lib/Release/x64",
-		"%{prj.name}/vendor/GLFW/lib"
+		"OpenGLRaytracing/vendor/GLFW/lib"
 	}
 
 	links {

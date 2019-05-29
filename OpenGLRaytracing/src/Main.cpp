@@ -4,6 +4,9 @@
 #include <fstream>
 #include <cmath>
 
+#define STB_IMAGE_IMPLEMENTATION
+#include <stb/stb_image.h>
+
 #define MAP_WIDTH 10
 
 double mXpos = -1, mYpos = -1, mDeltaX = 0, mDeltaY = 0;
