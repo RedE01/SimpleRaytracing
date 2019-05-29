@@ -7,7 +7,7 @@ Made in C++ using OpenGL.
 * Reflective ground and ceiling.
 
 ## Screenshots
-![Screenshot](https://user-images.githubusercontent.com/39171004/55278765-bd2dfa80-5310-11e9-9f23-c76c8fbe46bf.jpg)
+![Raytracer Screenshot](https://user-images.githubusercontent.com/39171004/58558202-7d0bcb00-8220-11e9-9e37-59e42a5063b5.PNG)
 
 ## Compiling with gcc
 Use `g++ -o Raytracing src/Main.cpp -lglfw -lGL -lGLEW` in OpenGLRaytracing folder.
