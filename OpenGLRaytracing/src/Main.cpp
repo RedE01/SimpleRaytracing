@@ -89,6 +89,10 @@ int main(void) {
 
 	std::ifstream stream("src/ComputeShader.glsl");
 	std::string computeShaderSourceString((std::istreambuf_iterator<char>(stream)), std::istreambuf_iterator<char>());
+	if (computeShaderSourceString.empty()) {
+		std::cout << "Could not find compute shader" << std::endl;
+		return -1;
+	}
 	const char* computeShaderSource = computeShaderSourceString.c_str();
 
 	GLuint rayShader = glCreateShader(GL_COMPUTE_SHADER);
@@ -187,23 +191,20 @@ int main(void) {
 	glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertexData), vertexData, GL_STATIC_DRAW);
 
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 5, (void*)0);
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 5, (void*)(3 * sizeof(float)));
+	
 	unsigned int indexData[] {
 		0, 1, 2,
 		2, 3, 0
 	};
 
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 5, (void*)0);
-	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 5, (void*)(3 * sizeof(float)));
-
 	GLuint indexBuffer;
 	glGenBuffers(1, &indexBuffer);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * 6, indexData, GL_STATIC_DRAW);
-
-	//glUseProgram(rayProgram);
-	//glUniform1i(glGetUniformLocation(program, "texture2"), 1);
 
 	double previousFrame = 0, timer = 0;
 	int frames = 0;
