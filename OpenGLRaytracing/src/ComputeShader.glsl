@@ -13,6 +13,8 @@ uniform float lookDir;
 uniform vec3 pos;
 uniform int reflections;
 
+uniform sampler2D texture2;
+
 struct hitInfo {
 	float dist;
 	vec3 hitPoint;
@@ -82,6 +84,7 @@ void main() {
 	vec3 rayDir = vec3(sin(angle), 0, cos(angle));
 
 	hitInfo info = castRay(pos, rayDir, maxRayLength);
+	vec3 finalHitPoint = info.hitPoint;
 	float color = calculateColor(info); 
 	
 	if(info.wallType == 2) {
@@ -97,6 +100,7 @@ void main() {
 
 			color = color * 0.7 + color2 * 0.3f;
 			info.dist += refInfo.dist;
+			finalHitPoint = refInfo.hitPoint;
 			counter++;
 		}
 	}
@@ -106,16 +110,28 @@ void main() {
 	int hHeight = dims.y / 2;
 	int height = hHeight - int(float(hHeight) - (float(dims.y) / info.dist));
 	for (int i = 0; i < hHeight; ++i) {
-		if (i > height) {
-			float floorColor = color * 0.4f;
-			pixel = vec4(floorColor, floorColor, floorColor, 1);
+		float brightness = 2.0f;
+
+		vec2 textureCoords = finalHitPoint.xz;
+		textureCoords = textureCoords - ivec2(textureCoords);
+		if(textureCoords.x < 0.00001f || textureCoords.x > 0.99999f) {
+			textureCoords.x = textureCoords.y;
 		}
+		int test = i;
+		for(int j = 0; j < 2 && test > height && height > 0; ++j) {
+			test -= height;
+		}
+
+		textureCoords.y = float(test) / height;
+
+		vec4 texColor = vec4(texture(texture2, textureCoords));
+
+		if(i > height) brightness = 1 + (height - i) / (hHeight * 0.5f);
+		if(test > height) brightness = 0.0f;
+
 		pixelCoords.y = hHeight - i;
-		imageStore(imgOutput, pixelCoords, pixel);
-		if (i > height) {
-			pixel *= 0.3;
-		}
+		imageStore(imgOutput, pixelCoords, pixel * brightness * texColor);
 		pixelCoords.y = hHeight + i;
-		imageStore(imgOutput, pixelCoords, pixel);
+		imageStore(imgOutput, pixelCoords, pixel * brightness * texColor);
 	}
 }

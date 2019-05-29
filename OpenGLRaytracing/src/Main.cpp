@@ -53,17 +53,39 @@ int main(void) {
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	glfwSwapInterval(1);
 
-	int texW = 1280, texH = 720;
-	GLuint textureID;
+	int texX, texY, texN;
+	unsigned char* texData = stbi_load("assets/img/brick.png", &texX, &texY, &texN, 0);
+	if (texData == NULL) {
+		std::cout << "Could not load image" << std::endl;
+	}
+
+	unsigned int textureID;
 	glGenTextures(1, &textureID);
-	glActiveTexture(GL_TEXTURE0);
+	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_2D, textureID);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+
+	if (texData) {
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, texX, texY, 0, GL_RGB, GL_UNSIGNED_BYTE, texData);
+	}
+
+	stbi_image_free(texData);
+	
+	int computeTexW = 1280, computeTexH = 720;
+	GLuint computeTextureID;
+	glGenTextures(1, &computeTextureID);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, computeTextureID);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, texW, texH, 0, GL_RGBA, GL_FLOAT, NULL);
-	glBindImageTexture(0, textureID, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, computeTexW, computeTexH, 0, GL_RGBA, GL_FLOAT, NULL);
+	glBindImageTexture(0, computeTextureID, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
 
 	std::ifstream stream("src/ComputeShader.glsl");
 	std::string computeShaderSourceString((std::istreambuf_iterator<char>(stream)), std::istreambuf_iterator<char>());
@@ -109,6 +131,8 @@ int main(void) {
 	glUniform1iv(mapUniformLocation, MAP_WIDTH * MAP_WIDTH, map);
 	glUniform1i(glGetUniformLocation(rayProgram, "mapWidth"), MAP_WIDTH);
 	glUniform1f(glGetUniformLocation(rayProgram, "maxRayLength"), sqrt(MAP_WIDTH * MAP_WIDTH * 2));
+
+	glUniform1i(glGetUniformLocation(rayProgram, "texture2"), 1);
 	
 	const char* vertShaderSource = {
 		"#version 330 core\n"
@@ -125,9 +149,9 @@ int main(void) {
 		"#version 330 core\n"
 		"out vec4 FragColor;\n"
 		"in vec2 texCoord;\n"
-		"uniform sampler2D ourTexture;\n"
+		"uniform sampler2D texture1;\n"
 		"void main() {\n"
-			"FragColor = texture(ourTexture, texCoord);\n"
+			"FragColor = texture(texture1, texCoord);\n"
 		"}"
 	};
 		
@@ -178,6 +202,9 @@ int main(void) {
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * 6, indexData, GL_STATIC_DRAW);
 
+	//glUseProgram(rayProgram);
+	//glUniform1i(glGetUniformLocation(program, "texture2"), 1);
+
 	double previousFrame = 0, timer = 0;
 	int frames = 0;
 	float lookDir = 0, pX = 5, pZ = 5;
@@ -202,17 +229,22 @@ int main(void) {
 		if (glfwGetKey(window, GLFW_KEY_D)) move(pX, pZ, lookDir - 1.571, deltaTime * 2, map);
 		lookDir -= mDeltaX * 0.001;
 
+		/*glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, computeTextureID);
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, textureID);*/
+
 		glUseProgram(rayProgram);
 		glUniform1f(lookDirUniformLocation, lookDir);
 		glUniform3f(posUniformLocation, pX, 0, pZ);
-		glDispatchCompute((GLuint)texW, 1, 1);
+		glDispatchCompute((GLuint)computeTexW, 1, 1);
 
 		glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 
 		/* Render here */
 		glClear(GL_COLOR_BUFFER_BIT);
 		glUseProgram(program);
-		glBindTexture(GL_TEXTURE_2D, textureID);
+		glBindTexture(GL_TEXTURE_2D, computeTextureID);
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
 		mDeltaX = mDeltaY = 0;
